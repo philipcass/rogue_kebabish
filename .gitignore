@@ -1,0 +1,24 @@
+# Xcode and system files
+.DS_Store
+build
+Build
+Products
+*.pbxuser
+*.perspectivev3
+
+# Unity junk files
+Xcode/
+Temp/*
+Library
+
+*.csproj
+*.pidb
+*.sln
+*.userPrefs
+*.userprefs
+xcuserdata
+xcuserdata/*
+*.suo
+Assembly-CSharp.csproj
+*.pidb
+Assembly-Boo*
