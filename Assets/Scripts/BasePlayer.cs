@@ -3,8 +3,11 @@ using UnityEngine;
 
 public class BasePlayer : FSprite
 {
+    public static BasePlayer Instance;
+    
     public BasePlayer(string elementName) : base(elementName)
     {
+        Instance = this;
         Futile.instance.SignalUpdate += HandleUpdate;
     }
  
