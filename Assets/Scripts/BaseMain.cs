@@ -6,6 +6,7 @@ public enum BPageType
 {
     None,
     InGamePage,
+    ScorePage,
 }
 
 public class BaseMain : MonoBehaviour
@@ -13,7 +14,8 @@ public class BaseMain : MonoBehaviour
     public static BaseMain Instance;
     private BPageType _currentPageType = BPageType.None;
     private BPage _currentPage = null;
-    
+    public int _score { get; set; }
+
     private FStage _stage;
     // Use this for initialization
     void Start ()
@@ -44,6 +46,8 @@ public class BaseMain : MonoBehaviour
 
         if (pageType == BPageType.InGamePage) {
             pageToCreate = new BInGamePage ();
+        } else if (pageType == BPageType.ScorePage){
+            pageToCreate = new BScorePage ();
         }
 
         if (pageToCreate != null) { //destroy the old page and create a new one

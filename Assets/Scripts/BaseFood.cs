@@ -19,6 +19,22 @@ public class BaseFood:FSprite,ICloneable
 
     }
  
+    public static BaseFood randomFood(){
+        int allergyInt = RXRandom.Int(3);
+        switch(allergyInt) {
+        case(0):
+            return BaseFood.HAM;
+        case(1):
+            return BaseFood.STEAK;
+        case(2):
+            return BaseFood.CHICKEN;
+        default:
+            return null;
+        }
+    }
+ 
+
+    
     public object Clone()
     {
         return this.MemberwiseClone();

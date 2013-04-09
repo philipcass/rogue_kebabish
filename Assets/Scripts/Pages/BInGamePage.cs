@@ -6,7 +6,6 @@ public class BInGamePage : BPage{
     private BasePlayer _chef;
     private List<BaseFood> _meats;
 
-    public int _score { get; set; }
     public int _multiplier { get; set; }
 
     private FContainer kebabSpit;
@@ -18,13 +17,13 @@ public class BInGamePage : BPage{
     
     override public void Start(){
         FSprite map = new FSprite("map.png");
-        Futile.stage.AddChild(map);
+        this.AddChild(map);
 
         playArea = new FContainer();
-        Futile.stage.AddChild(playArea);
+        this.AddChild(playArea);
      
         _bestScoreLabel = new FLabel("BitOut", "");
-        Futile.stage.AddChild(_bestScoreLabel);
+        this.AddChild(_bestScoreLabel);
         _bestScoreLabel.scale = 0.5f;
         _bestScoreLabel.anchorX = 0.0f;
         _bestScoreLabel.anchorY = 1.0f;
@@ -34,7 +33,7 @@ public class BInGamePage : BPage{
         
         _timeLabel = new FLabel("BitOut", "clock: 30");
         _time = 30;
-        Futile.stage.AddChild(_timeLabel);
+        this.AddChild(_timeLabel);
         _timeLabel.scale = 0.5f;
         _timeLabel.anchorX = 0.0f;
         _timeLabel.anchorY = -1.0f;
@@ -67,25 +66,10 @@ public class BInGamePage : BPage{
         base.HandleRemovedFromStage();  
     }
     
-    BaseFood randomFood()
-    {
-        int allergyInt = RXRandom.Int(3);
-        switch(allergyInt) {
-        case(0):
-            return BaseFood.HAM;
-        case(1):
-            return BaseFood.STEAK;
-        case(2):
-            return BaseFood.CHICKEN;
-        default:
-            return null;
-        }
-    }
- 
     void pickAllergy()
     {
         //foods[allergyInt].Value = -100;
-        BaseFood f = randomFood();
+        BaseFood f = BaseFood.randomFood();
         f.Value = -100;
         f = (BaseFood)f.Clone();
         f.scale = 2;
@@ -95,7 +79,7 @@ public class BInGamePage : BPage{
  
     void addMeat()
     {
-        BaseFood meat =(BaseFood)randomFood().Clone();
+        BaseFood meat =(BaseFood)BaseFood.randomFood().Clone();
         playArea.AddChild(meat);
         _meats.Add(meat);
         meat.x = Random.Range(-Futile.screen.halfWidth + 32, Futile.screen.halfWidth - 32);
@@ -107,6 +91,7 @@ public class BInGamePage : BPage{
  
     void HandleGameStart(AbstractTween tween)
     {
+        FSoundManager.PlayMusic("dino_ingame");
         for(int i = 0; i<10; i++) {
             addMeat();
         }
@@ -118,7 +103,7 @@ public class BInGamePage : BPage{
     float frameCount = 0;
     public void HandleUpdate()
     {
-        _bestScoreLabel.text = string.Format("score: {0}", _score);
+        _bestScoreLabel.text = string.Format("score: {0}", BaseMain.Instance._score);
         _timeLabel.text = string.Format("clock: {0}", _time);
 
         for(int i = 0; i < _meats.Count; i++) {
@@ -143,10 +128,10 @@ public class BInGamePage : BPage{
             _multiplier = 1;
         }
 
-        if(Input.GetKeyDown(KeyCode.Space) && playArea.isVisible){
+        if(Input.GetKeyDown(KeyCode.Space) && _time != 0){
             BaseFood top = (BaseFood)kebabSpit.GetChildAt(kebabSpit.GetChildCount()-1);
             if(top.Value>0){
-                _score += top.Value*_multiplier;
+                BaseMain.Instance._score += top.Value*_multiplier;
                 FLabel mult = new FLabel("BitOut",string.Format("x{0}", _multiplier));
                 mult.x = _chef.x;
                 mult.y = _chef.y;
@@ -155,10 +140,15 @@ public class BInGamePage : BPage{
                 Go.to(mult, 0.66f, new TweenConfig().floatProp("y", mult.y+10f).floatProp("alpha", 0.0f).onComplete(HandleNodeComplete));
                 _multiplier++;
             }else{
-                _score += top.Value;
+                BaseMain.Instance._score += top.Value;
                 _multiplier = 1;
             }
             top.RemoveFromContainer();
+        }
+        
+        if(Input.GetKeyDown(KeyCode.Space) && _time == 0){
+            Debug.Log("Loading Scores...");
+            BaseMain.Instance.GoToPage(BPageType.ScorePage);
         }
     }
 
