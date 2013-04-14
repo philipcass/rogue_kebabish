@@ -7,6 +7,7 @@ public enum BPageType
     None,
     MainMenu,
     InGamePage,
+    Instructions,
     ScorePage,
 }
 
@@ -53,6 +54,8 @@ public class BaseMain : MonoBehaviour
             pageToCreate = new BMainMenu();
         } else if (pageType == BPageType.ScorePage){
             pageToCreate = new BScorePage ();
+        } else if (pageType == BPageType.Instructions){
+            pageToCreate = new BInstructions ();
         }
 
         if (pageToCreate != null) { //destroy the old page and create a new one

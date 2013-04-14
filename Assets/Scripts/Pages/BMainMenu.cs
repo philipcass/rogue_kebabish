@@ -48,7 +48,7 @@ public class BMainMenu : BPage{
                 BaseMain.Instance.GoToPage(BPageType.InGamePage);
                 break;
             case 1:
-                BaseMain.Instance.GoToPage(BPageType.InGamePage);
+                BaseMain.Instance.GoToPage(BPageType.Instructions);
                 break;
             case 2:
                 BaseMain.Instance.GoToPage(BPageType.ScorePage);
