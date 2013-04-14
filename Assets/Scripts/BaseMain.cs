@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public enum BPageType
 {
     None,
+    MainMenu,
     InGamePage,
     ScorePage,
 }
@@ -33,7 +34,7 @@ public class BaseMain : MonoBehaviour
         
         _stage = Futile.stage;
 
-        GoToPage(BPageType.InGamePage);
+        GoToPage(BPageType.MainMenu);
 
     }
 
@@ -46,6 +47,10 @@ public class BaseMain : MonoBehaviour
 
         if (pageType == BPageType.InGamePage) {
             pageToCreate = new BInGamePage ();
+        } else if (pageType == BPageType.MainMenu){
+            //reset score
+            _score = 0;
+            pageToCreate = new BMainMenu();
         } else if (pageType == BPageType.ScorePage){
             pageToCreate = new BScorePage ();
         }

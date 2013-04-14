@@ -14,10 +14,13 @@ public class BInGamePage : BPage{
     private FLabel _bestScoreLabel;
     private FLabel _timeLabel;
     public float _time { get; set; }
-    
+    public int _inprogScore { get; set; }
+    Tween scoreTween;
+
     override public void Start(){
         FSprite map = new FSprite("map.png");
         this.AddChild(map);
+        scoreTween = Go.to(this, 0.3f, new TweenConfig().intProp("_inprogScore", BaseMain.Instance._score));
 
         playArea = new FContainer();
         this.AddChild(playArea);
@@ -103,7 +106,6 @@ public class BInGamePage : BPage{
     float frameCount = 0;
     public void HandleUpdate()
     {
-        _bestScoreLabel.text = string.Format("score: {0}", BaseMain.Instance._score);
         _timeLabel.text = string.Format("clock: {0}", _time);
 
         for(int i = 0; i < _meats.Count; i++) {
@@ -146,10 +148,13 @@ public class BInGamePage : BPage{
             top.RemoveFromContainer();
         }
         
-        if(Input.GetKeyDown(KeyCode.Space) && _time == 0){
+        if(Input.GetKeyUp(KeyCode.Space) && _time == 0){
             Debug.Log("Loading Scores...");
             BaseMain.Instance.GoToPage(BPageType.ScorePage);
         }
+        if ( scoreTween.state == TweenState.Destroyed)
+            scoreTween = Go.to(this, 0.3f, new TweenConfig().intProp("_inprogScore", BaseMain.Instance._score));
+        _bestScoreLabel.text = string.Format("score: {0}", this._inprogScore);
     }
 
     private void HandleGameComplete(AbstractTween tween){

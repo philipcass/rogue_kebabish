@@ -17,7 +17,7 @@ public class BScorePage : BPage{
         FSoundManager.PlayMusic("dino_menu");
         CoroutineRunner.StartFutileCoroutine(getScores());
         scoreArea = new FContainer();
-        Futile.stage.AddChild(scoreArea);
+        this.AddChild(scoreArea);
         _bestScoreLabel = new FLabel("BitOut", "best scores!\n\n");
         scoreArea.AddChild(_bestScoreLabel);
         _bestScoreLabel.color = new Color(1.0f, 0.9f, 0.2f);
@@ -86,14 +86,20 @@ public class BScorePage : BPage{
     
     override public void HandleAddedToStage()
     {
-        //Futile.instance.SignalUpdate += HandleUpdate;
+        Futile.instance.SignalUpdate += HandleUpdate;
         base.HandleAddedToStage();  
     }
 
     override public void HandleRemovedFromStage()
     {
-        //Futile.instance.SignalUpdate -= HandleUpdate;
+        Futile.instance.SignalUpdate -= HandleUpdate;
         base.HandleRemovedFromStage();  
     }
     
+    void HandleUpdate(){
+        if(Input.GetKeyUp(KeyCode.Space)){
+                BaseMain.Instance.GoToPage(BPageType.MainMenu);
+        }
+    }
+
 }
