@@ -10,7 +10,7 @@ public class BInstructions : BPage{
     FContainer scoreArea;
     FLabel _instructions;
     override public void Start(){
-        _instructions = new FLabel("BitOut", "how to play:\n-given an allergy\n-avoid allergy while \ncollecting other food\n-eat and gain points\n\n-wasd to move\n-spacebar to eat");
+        _instructions = new FLabel("BitOut", "you have been afflicted with\na terrible random allergy,\n ...let's say by a wizard.\n\nCollect other foods\nto gain points.\nMovement: Mouse/Touch ");
         _instructions.color = new Color(1.0f, 0.9f, 0.2f);
         this.AddChild(_instructions);
     }
@@ -28,8 +28,8 @@ public class BInstructions : BPage{
     }
     
     void HandleUpdate(){
-        if(Input.GetKeyUp(KeyCode.Space)){
-                BaseMain.Instance.GoToPage(BPageType.MainMenu);
+        if(Input.GetMouseButtonUp(0)){
+                BaseMain.Instance.GoToPage(BPageType.InGamePage);
         }
     }
 

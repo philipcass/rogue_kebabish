@@ -25,12 +25,20 @@ public class BaseMain : MonoBehaviour
         Instance = this;
         FutileParams fparams = new FutileParams (true, false, false, false);
 
+        //Preload audio
+        FSoundManager.Init();
+        FSoundManager.PlayMusic("dino_ingame", 0);
+        FSoundManager.PlayMusic("dino_music", 0);
+
+        FScoreManager.Init();
+
         fparams.AddResolutionLevel (480.0f, 1.0f, 1.0f, ""); 
         fparams.origin = new Vector2 (0.5f, 0.5f);
 
         Futile.instance.Init (fparams);
 
         Futile.atlasManager.LoadAtlas ("Atlases/Game");
+        Futile.atlasManager.LoadImage ("drumstick2");
         Futile.atlasManager.LoadFont ("BitOut", "BitOut_0.png", "Atlases/BitOut");
         
         _stage = Futile.stage;

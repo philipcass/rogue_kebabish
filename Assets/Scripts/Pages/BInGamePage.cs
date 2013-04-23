@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class BInGamePage : BPage{
     private BasePlayer _chef;
     private List<BaseFood> _meats;
+    private bool _gameOver = false;
 
     public int _multiplier { get; set; }
 
@@ -20,7 +21,7 @@ public class BInGamePage : BPage{
     override public void Start(){
         FSprite map = new FSprite("map.png");
         this.AddChild(map);
-        scoreTween = Go.to(this, 0.3f, new TweenConfig().intProp("_inprogScore", BaseMain.Instance._score));
+        scoreTween = Go.to(this, 0.3f, new TweenConfig().intProp("_inprogScore", BaseMain.Instance._score, false));
 
         playArea = new FContainer();
         this.AddChild(playArea);
@@ -71,7 +72,10 @@ public class BInGamePage : BPage{
     
     void pickAllergy()
     {
-        //foods[allergyInt].Value = -100;
+        //Reset
+        BaseFood.CHICKEN.Value = 10;
+        BaseFood.HAM.Value = 10;
+        BaseFood.STEAK.Value = 10;
         BaseFood f = BaseFood.randomFood();
         f.Value = -100;
         f = (BaseFood)f.Clone();
@@ -107,59 +111,83 @@ public class BInGamePage : BPage{
     public void HandleUpdate()
     {
         _timeLabel.text = string.Format("clock: {0}", _time);
-
-        for(int i = 0; i < _meats.Count; i++) {
-            float x = Vector2.Distance(new Vector2(_chef.x, _chef.y), new Vector2(_meats[i].x, _meats[i].y));
-            Go.killAllTweensWithTarget(_meats[i]);
-            Go.to(_meats[i],((x + 1) / 100f) /(_meats[i].Speed), new TweenConfig().floatProp("x", _chef.x).floatProp("y", _chef.y));
-            Vector2 touchPos = _chef.GlobalToLocal(new Vector2(_meats[i].x, _meats[i].y));
-            if(_chef.textureRect.Contains(touchPos)) {
-                Go.to(_meats[i], 0.3f, new TweenConfig().floatProp("scale", 1.3f).floatProp("alpha", 0.0f).onComplete(HandleMeatCompleteScore));
-                _meats.RemoveAt(i);
-                i--;
-                addMeat();
-                frameCount = 0;
+        if(_time != 0){
+      
+            //Checks meat for collision with player, removes it and replaces it with another
+            for(int i = 0; i < _meats.Count; i++) {
+                float distance = Vector2.Distance(new Vector2(_chef.x, _chef.y), new Vector2(_meats[i].x, _meats[i].y));
+                Go.killAllTweensWithTarget(_meats[i]);
+                Go.to(_meats[i],((distance + 1) / 100f) /(_meats[i].Speed), new TweenConfig().floatProp("x", _chef.x).floatProp("y", _chef.y));
+                Vector2 touchPos = _chef.GlobalToLocal(new Vector2(_meats[i].x, _meats[i].y));
+                if(_chef.textureRect.Contains(touchPos)) {
+                    Go.to(_meats[i], 0.3f, new TweenConfig().floatProp("scale", 1.3f).floatProp("alpha", 0.0f).onComplete(HandleMeatCompleteScore));
+                    _meats.RemoveAt(i);
+                    i--;
+                    addMeat();
+                    frameCount = 0;
+                }
             }
-        }
-        frameCount += Time.deltaTime;
-        if(frameCount > 2) {
-            frameCount = 0;
-            Go.to(_meats[0], 0.3f, new TweenConfig().floatProp("scale", 0f).floatProp("alpha", 0.0f).onComplete(HandleNodeComplete));
-            _meats.RemoveAt(0);
-            addMeat();
-            _multiplier = 1;
-        }
-
-        if(Input.GetKeyDown(KeyCode.Space) && _time != 0){
-            BaseFood top = (BaseFood)kebabSpit.GetChildAt(kebabSpit.GetChildCount()-1);
-            if(top.Value>0){
-                BaseMain.Instance._score += top.Value*_multiplier;
-                FLabel mult = new FLabel("BitOut",string.Format("x{0}", _multiplier));
-                mult.x = _chef.x;
-                mult.y = _chef.y;
-                mult.scale = 0.5f;
-                playArea.AddChild(mult);
-                Go.to(mult, 0.66f, new TweenConfig().floatProp("y", mult.y+10f).floatProp("alpha", 0.0f).onComplete(HandleNodeComplete));
-                _multiplier++;
-            }else{
-                BaseMain.Instance._score += top.Value;
+            
+            //Removes oldest meat after a timeout and replaces it with a new one
+            frameCount += Time.deltaTime;
+            if(frameCount > 0.8f) {
+                frameCount = 0;
+                Go.to(_meats[0], 0.3f, new TweenConfig().floatProp("scale", 0f).floatProp("alpha", 0.0f).onComplete(HandleNodeComplete));
+                _meats.RemoveAt(0);
+                addMeat();
                 _multiplier = 1;
             }
-            top.RemoveFromContainer();
+
+            if(Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) && _time != 0){
+                BaseFood top = (BaseFood)kebabSpit.GetChildAt(kebabSpit.GetChildCount()-1);
+                if(top.Value>0){
+                    BaseMain.Instance._score += top.Value*_multiplier;
+                    FLabel mult = new FLabel("BitOut",string.Format("x{0}", _multiplier));
+                    mult.x = _chef.x;
+                    mult.y = _chef.y;
+                    mult.scale = 0.5f;
+                    playArea.AddChild(mult);
+                    Go.to(mult, 0.66f, new TweenConfig().floatProp("y", mult.y+10f).floatProp("alpha", 0.0f).onComplete(HandleNodeComplete));
+                    _multiplier++;
+                }else{
+                    BaseMain.Instance._score += top.Value;
+                    _multiplier = 1;
+                }
+                top.RemoveFromContainer();
+            }
+
+            if ( scoreTween.state == TweenState.Destroyed)
+                scoreTween = Go.to(this, 0.3f, new TweenConfig().intProp("_inprogScore", BaseMain.Instance._score, false));
+            _bestScoreLabel.text = string.Format("score: {0}", this._inprogScore);
         }
-        
-        if(Input.GetKeyUp(KeyCode.Space) && _time == 0){
+
+        if(Input.GetMouseButtonUp(0) && _gameOver){
             Debug.Log("Loading Scores...");
             BaseMain.Instance.GoToPage(BPageType.ScorePage);
         }
-        if ( scoreTween.state == TweenState.Destroyed)
-            scoreTween = Go.to(this, 0.3f, new TweenConfig().intProp("_inprogScore", BaseMain.Instance._score));
-        _bestScoreLabel.text = string.Format("score: {0}", this._inprogScore);
     }
 
     private void HandleGameComplete(AbstractTween tween){
         Go.to(playArea, 0.3f, new TweenConfig().floatProp("scale", 0f).floatProp("alpha", 0.0f));
-        Go.to(_bestScoreLabel, 1f, new TweenConfig().setEaseType(EaseType.SineOut).floatProp("anchorX", 0.5f).floatProp("anchorY", 0.5f).floatProp("scale", 1f).floatProp("x", 0.0f).floatProp("y", 0.0f));
+        TweenChain chain = new TweenChain();
+        chain.append(new Tween(_bestScoreLabel, 1f, new TweenConfig().setEaseType(EaseType.SineOut).floatProp("anchorX", 0.5f)
+                    .floatProp("anchorY", 0.5f)
+                    .floatProp("scale", 1f)
+                    .floatProp("x", 0.0f)
+                    .floatProp("y", 0.0f)));
+        if(BaseMain.Instance._score > (long)FScoreManager.Scores[0]){
+            _bestScoreLabel.text = string.Format("new high score:\n{0}", BaseMain.Instance._score);
+            Tween move = new Tween(_bestScoreLabel, 0.5f, new TweenConfig().floatProp("alpha", 0).setIterations(6, LoopType.PingPong));
+            chain.append(move);
+        }else{
+            _bestScoreLabel.text = string.Format("score: {0}", BaseMain.Instance._score);
+        }
+        chain.setOnCompleteHandler(HandleGameComplete2);
+        chain.play();
+    }
+
+    private void HandleGameComplete2(AbstractTween tween){
+        _gameOver = true;
     }
 
     private void HandleNodeComplete(AbstractTween tween)

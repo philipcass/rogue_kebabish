@@ -8,7 +8,7 @@ public class BMainMenu : BPage{
     
     FLabel _title;
     string[] selection = {"*"," "," "};
-    string menuString = "rOGUE\nkEBABISH!\n\n{0}play{0}\n{1}instructions{1}\n{2}scores{2}";
+    string menuString = "rOGUE\nkEBABISH!\n\n{0}play{0}";
     override public void Start(){
         //CoroutineRunner.StartFutileCoroutine(setScore("philz", BaseMain.Instance._score));
         FSoundManager.PlayMusic("dino_menu");
@@ -42,10 +42,10 @@ public class BMainMenu : BPage{
         }
         _title.text = string.Format(menuString, selection);
         
-        if(Input.GetKeyUp(KeyCode.Space)){
+        if(Input.GetMouseButtonUp(0)){
             switch(menuIndex){
             case 0:
-                BaseMain.Instance.GoToPage(BPageType.InGamePage);
+                BaseMain.Instance.GoToPage(BPageType.Instructions);
                 break;
             case 1:
                 BaseMain.Instance.GoToPage(BPageType.Instructions);
