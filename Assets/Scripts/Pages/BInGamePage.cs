@@ -175,15 +175,28 @@ public class BInGamePage : BPage{
                     .floatProp("scale", 1f)
                     .floatProp("x", 0.0f)
                     .floatProp("y", 0.0f)));
-        if(BaseMain.Instance._score > (long)FScoreManager.Scores[0]){
+        bool highscoreGET = false;
+        for(int i = 0; i < FScoreManager.Scores.Count; i++){
+            if(BaseMain.Instance._score > (long)FScoreManager.Scores[i])
+                highscoreGET = true;
+        }
+        if(highscoreGET){
             _bestScoreLabel.text = string.Format("new high score:\n{0}", BaseMain.Instance._score);
             Tween move = new Tween(_bestScoreLabel, 0.5f, new TweenConfig().floatProp("alpha", 0).setIterations(6, LoopType.PingPong));
+            this.AddChild(new FKeyBoard("BitOut", HandleUpdate, setText));
             chain.append(move);
         }else{
             _bestScoreLabel.text = string.Format("score: {0}", BaseMain.Instance._score);
         }
         chain.setOnCompleteHandler(HandleGameComplete2);
         chain.play();
+    }
+    
+    string _name;
+    private void setText(string s){
+        _name = s;
+        if(this._name.Length == 3)
+            FScoreManager.PostScore(_name, BaseMain.Instance._score);
     }
 
     private void HandleGameComplete2(AbstractTween tween){

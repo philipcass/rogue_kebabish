@@ -28,7 +28,7 @@ public class BScorePage : BPage{
     }
     
     IEnumerator PausedText(){
-        while(FScoreManager.Scores == null){
+        while(FScoreManager.Scores == null || !FScoreManager.isDone){
             yield return new WaitForSeconds(0.3f);
         }
 
